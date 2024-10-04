@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,17 +16,22 @@ public class IntegrationTest {
         String validFilePath = "src/weather_data.txt";
         String serverUrl = "http://localhost:8080";
 
-        // Send data to AggregationServer
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Send data to AggregationServer via PUT
         ContentServer.setTestMode(true);
         ContentServer.main(new String[]{serverUrl, validFilePath});
 
-        // Verify that AggregationServer responds correctly
+        // Verify that AggregationServer responds correctly to the PUT request
         URL url = new URL(serverUrl + "/aggregation");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
+        conn.setRequestMethod("PUT");  // PUT because we are uploading data
 
-        int responseCode = conn.getResponseCode();
-        assertEquals(HttpURLConnection.HTTP_OK, responseCode, "AggregationServer should return HTTP OK.");
+        String actualData = outContent.toString();
+
+        assertTrue(actualData.contains("Server response: 200 OK") || actualData.contains("Server response: 201 Created"),
+                "AggregationServer should return 200 OK or 201 Created.");
     }
 
     @Test
@@ -34,29 +40,32 @@ public class IntegrationTest {
         String validFilePath = "src/weather_data.txt";
         String serverUrl = "http://localhost:8080";
 
-        // Send data to AggregationServer using ContentServer
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Send data to AggregationServer via PUT
         ContentServer.setTestMode(true);
         ContentServer.main(new String[]{serverUrl, validFilePath});
 
-        // Verify that AggregationServer responds with HTTP OK
+        // Verify that AggregationServer responds correctly to the PUT request
         URL url = new URL(serverUrl + "/aggregation");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
+        conn.setRequestMethod("PUT");  // PUT because we are uploading data
 
-        int responseCode = conn.getResponseCode();
-        assertEquals(HttpURLConnection.HTTP_OK, responseCode, "AggregationServer should return HTTP OK.");
+        String ContentData = outContent.toString();
 
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outContent));
+        assertTrue(ContentData.contains("Server response: 200 OK") || ContentData.contains("Server response: 201 Created"),
+                "AggregationServer should return 200 OK or 201 Created.");
+
+        // Capture the output from GETClient
+        ByteArrayOutputStream outGETClient = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outGETClient));
 
         // Run GETClient to fetch the data from AggregationServer
         GETClient.setTestMode(true);
         GETClient.main(new String[]{serverUrl});
 
-        // Capture the output from GETClient (you will need to modify GETClient to return data or capture output)
-        // For this example, let's assume we can redirect its output to a string or check the output stream
-
-        // Assuming GETClient stores the weather data in a field for testing purposes
+        // Assuming GETClient prints weather data to System.out, capture that output
         String expectedData = "Weather Data:" + System.lineSeparator() +
                 "apparent_t: 9.5" + System.lineSeparator() +
                 "wind_spd_kmh: 15" + System.lineSeparator() +
@@ -69,15 +78,16 @@ public class IntegrationTest {
                 "air_temp: 13.3" + System.lineSeparator() +
                 "cloud: Partly cloudy" + System.lineSeparator() +
                 "local_date_time_full: 20230715160000" + System.lineSeparator() +
-                "name: Adelaide (West Terrace /  ngayirdapira)" + System.lineSeparator() +
+                "name: Adelaide (West Terrace / ngayirdapira)" + System.lineSeparator() +
                 "id: IDS60901" + System.lineSeparator() +
                 "state: SA" + System.lineSeparator() +
                 "press: 1023.9" + System.lineSeparator() +
                 "lat: -34.9" + System.lineSeparator();
-        String actualData = outContent.toString();
+
+        // Capture the actual data returned by GETClient
+        String GETClientData = outGETClient.toString();
 
         // Verify that the data returned by GETClient matches the expected weather data
-        assertEquals(expectedData, actualData, "GETClient should return the correct weather data.");
+        assertEquals(expectedData, GETClientData, "GETClient should return the correct weather data.");
     }
-
 }

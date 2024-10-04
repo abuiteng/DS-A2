@@ -12,12 +12,15 @@ public class ContentServerTest {
         String validFilePath = "src/weather_data.txt"; // Path to a valid test file
         String serverUrl = "http://localhost:8080"; // Assuming server is running locally on port 8080
 
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         ContentServer.setTestMode(true);
         ContentServer.main(new String[]{serverUrl, validFilePath}); // Call ContentServer with valid parameters
 
         File file = new File(validFilePath);
-        assertTrue(file.exists(), "The file should exist.");
-    }
+        assertTrue(outContent.toString().contains("Server response: 200 OK") || outContent.toString().contains("Server response: 201 Created"),
+                "AggregationServer should return 200 OK or 201 Created.");    }
 
     @Test
     public void testSendWeatherData_invalidFile() {

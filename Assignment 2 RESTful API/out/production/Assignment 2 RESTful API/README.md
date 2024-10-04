@@ -82,6 +82,6 @@ To facilitate automated testing, a `boolean` flag `isTestMode` has been added to
 
 By default, this flag is set to `false`, which means the server will run continuously, waiting for user commands. For testing purposes, `isTestMode` is set to  `true` in order to allow the test cases to finish running without user input.
 
-Both `AggregationServerTests` and `ContentServerTest` `GETClientTests` and `IntegrationTest` make use of this feature, and you do not need to adjust anything for this to work.
+Both `ContentServerTest` `GETClientTests` and `IntegrationTest` make use of this feature, and you do not need to adjust anything for this to work.
 
 However, you must start `AggregationServer` on `port:8080` before running these test cases.

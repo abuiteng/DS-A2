@@ -1,5 +1,6 @@
 import org.json.JSONObject;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -24,7 +25,7 @@ public class GETClient {
      *
      * @param args Command-line arguments containing the server URL.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.err.println("Usage: java GETClient <server-url>");
             System.exit(1);
@@ -59,7 +60,7 @@ public class GETClient {
      * Sends a GET request to the specified server URL.
      * Processes the server's response and prints the weather data.
      */
-    private static void sendGetRequest(String serverUrl) {
+    private static void sendGetRequest(String serverUrl) throws Exception {
         try {
             // Construct the URL object
             URL url = new URL(serverUrl);
@@ -95,8 +96,7 @@ public class GETClient {
                 System.err.println("GET request failed. Response Code: " + responseCode);
             }
         } catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("Something went wrong");
+            System.out.println("Something went wrong. Data could have expired or connection could have been unsuccessful");
         }
     }
 }

@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.json.JSONObject;
+import org.json.*;
 
 /**
  * AggregationServer handles incoming requests for weather data, storing it
@@ -160,6 +160,7 @@ public class AggregationServer {
                 // Update weather data
                 weatherData.put(id, jsonObject.toString());
                 lastUpdated.put(id, System.currentTimeMillis());
+                saveWeatherDataToFile();
 
                 // Clean up stale data
                 cleanUpStaleData();
@@ -179,6 +180,7 @@ public class AggregationServer {
 
                 // Determine if this is the first time the client has uploaded data
                 boolean isFirstUpload = !clientHasUploadedData.getOrDefault(id, false);
+
                 clientHasUploadedData.put(id, true);
 
                 // Write response: 201 for first upload, 200 for subsequent
@@ -190,6 +192,7 @@ public class AggregationServer {
             } catch (Exception e) {
                 sendErrorResponse(outputStream, 500, "Internal Server Error");
             }
+
         }
 
         /**
