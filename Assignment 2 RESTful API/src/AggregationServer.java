@@ -155,7 +155,6 @@ public class AggregationServer {
             try {
                 JSONObject jsonObject = new JSONObject(requestBody.toString());
                 String id = jsonObject.getString("id");
-                String clientId = jsonObject.getString("clientId");
                 lamportClock.increment();
 
                 // Update weather data
@@ -179,8 +178,8 @@ public class AggregationServer {
                 }
 
                 // Determine if this is the first time the client has uploaded data
-                boolean isFirstUpload = !clientHasUploadedData.getOrDefault(clientId, false);
-                clientHasUploadedData.put(clientId, true);
+                boolean isFirstUpload = !clientHasUploadedData.getOrDefault(id, false);
+                clientHasUploadedData.put(id, true);
 
                 // Write response: 201 for first upload, 200 for subsequent
                 if (isFirstUpload) {

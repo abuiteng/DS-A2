@@ -1,5 +1,4 @@
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -12,6 +11,12 @@ import java.util.Scanner;
  * to either request data or exit the application.
  */
 public class GETClient {
+
+    static boolean isTestMode = false; // Introduce a flag for test mode
+
+    static void setTestMode(boolean testMode) {
+        isTestMode = testMode;
+    }
 
     /**
      * Main method to execute the GETClient application.
@@ -29,6 +34,11 @@ public class GETClient {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {  // Infinite loop to keep the connection persistent
+            if (isTestMode) {
+                sendGetRequest(serverUrl);
+                break;
+            }
+
             System.out.println("Enter 'request' to get weather data or 'exit' to quit:");
 
             String command = scanner.nextLine().trim().toLowerCase();
@@ -85,7 +95,8 @@ public class GETClient {
                 System.err.println("GET request failed. Response Code: " + responseCode);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("Something went wrong");
         }
     }
 }

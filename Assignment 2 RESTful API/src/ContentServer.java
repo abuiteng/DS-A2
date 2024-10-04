@@ -13,6 +13,11 @@ public class ContentServer {
     private static String serverUrl; // URL of the AggregationServer
     private static String filePath; // Path to the weather data file
     private static LamportClock lamportClock = new LamportClock(); // Lamport clock instance
+    static boolean isTestMode = false; // Introduce a flag for test mode
+
+    static void setTestMode(boolean testMode) {
+        isTestMode = testMode;
+    }
 
     /**
      * Main method to start the ContentServer.
@@ -35,6 +40,7 @@ public class ContentServer {
         String command;
         try {
             while (true) {
+                if (isTestMode) break;
                 System.out.print("Enter 'update' to resend the weather data or 'exit' to quit: ");
                 command = consoleReader.readLine();
 
@@ -51,8 +57,6 @@ public class ContentServer {
             e.printStackTrace();
         }
     }
-
-    private static String clientId = "your_fixed_client_id"; // Set a fixed client ID
 
     /**
      * Sends the weather data from the specified file to the AggregationServer.
@@ -72,6 +76,7 @@ public class ContentServer {
                 String line;
                 while ((line = fileReader.readLine()) != null) {
                     fileContent.append(line).append("\n");
+                    //System.out.println(line);
                 }
             }
 
@@ -85,13 +90,15 @@ public class ContentServer {
                     String key = keyValue[0].trim();
                     String value = keyValue[1].trim();
                     dataJson.put(key, value);
+                } else if (keyValue.length < 2) {
+                    System.err.println("File not formatted correctly: " + filePath);
+                    return;
                 }
             }
 
             // Create the complete JSON payload
             JSONObject jsonPayload = new JSONObject();
             jsonPayload.put("id", weatherDataFile.getName());
-            jsonPayload.put("clientId", clientId); // Use the fixed client ID
             jsonPayload.put("data", dataJson);
 
             // Log the JSON payload being sent
